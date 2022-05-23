@@ -1,0 +1,58 @@
+<h1> Room </h1>
+<p>This is a demo of chatroom page</p>
+<p>
+    The room you are visiting is {{ roomName }}
+</p>
+<p>To generate a new room, here is the room id: {{ newRoomId }}</p>
+
+<h2> MESSAGES </h2>
+
+{{#if isAvailable}}
+<ul id="list-template">
+    {{#each messages}}
+        <li> {{this.nickname}}: {{this.message}} </li>
+    {{/each}}
+</ul>
+{{/if}}
+
+<form action="/{{ roomName }}/createMessage" method="POST">
+<input type="text" name="nickname" placeholder="Please enter user's name">
+<input type="text" name="message" placeholder="Please enter a message">
+<input type="text" name="roomName" value={{roomName}} placeholder="">
+<input type="submit" value="Create Post">
+</form>
+
+<script src="https://twitter.github.io/typeahead.js/js/handlebars.js"></script>
+
+<script>
+    window.addEventListener('load', function() {
+        setInterval( async function() {
+            fetch("http://localhost:8080/{{ roomName }}/messages")
+            .then(response => response.json())
+            .then(data => {
+                var messageJson = data;
+
+                var ul_element = document.getElementById('list-template');
+                ul_element.innerHTML = "";
+
+                for(var j = 0; j < messageJson.length; j++) {
+                    var li = document.createElement('li');
+                    var bold = document.createElement('b');
+                    var italics = document.createElement('i')
+                    var paragraph = document.createElement('b');
+                    
+                    bold.textContent = messageJson[j].nickname;
+                    italics.textContent = "(" + messageJson[j].timestamp + "): ";
+                    paragraph.textContent = messageJson[j].message;
+
+                    li.appendChild(bold);
+                    li.appendChild(italics);
+                    li.appendChild(paragraph);
+                    ul_element.appendChild(li);
+                }
+            }).catch(err => {
+                console.log("Error when rendering messages:", err)
+            })
+        }, 3000)
+    });
+</script>
